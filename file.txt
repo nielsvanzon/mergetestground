@@ -2,4 +2,5 @@ version of file : 1.0.01-SNAPSHOT
 == feature A
 == feature B
 == feature C
-== Bugfix 1
+== bugfix 1
+== bugfix 2
