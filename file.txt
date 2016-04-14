@@ -2,3 +2,4 @@ version of file : 1.0.v1-SNAPSHOT
 == feature A
 == feature B
 == feature C
+== feature E
