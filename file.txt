@@ -4,3 +4,5 @@ version of file : 1.0.01-SNAPSHOT
 == feature C
 == bugfix 1
 == bugfix 2
+== bugfix 3
+== bugfix 4
