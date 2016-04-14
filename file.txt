@@ -1,4 +1,4 @@
-version of file : 1.0.01
+version of file : 1.0.01-SNAPSHOT
 == feature A
 == feature B
 == feature C
