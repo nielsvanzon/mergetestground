@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# check for the correct number of arguments
-if [ ! $# == 2 ]; then
-	echo "use: $0 base_branch target_branch"
-	exit
-fi
+BASE_BRANCH=patch_mergetest
+TARGET_BRANCH=productie_mergetest
 
 # check for a clean working directory 
 if [ -z "$(git status --porcelain)" ]; then 
@@ -14,21 +11,15 @@ else
 	exit
 fi
 
-BASE_BRANCH=$1
-TARGET_BRANCH=$2
-
 # get locally up to date versions of the base and target branches
 echo "Fetching updates..."
 git fetch --all
 echo "Checking out target branch $TARGET_BRANCH..." 
 git checkout $TARGET_BRANCH
 git pull
-git reset --hard origin/$TARGET_BRANCH
-
-echo "Checking out base branch $$BASE_BRANCH..." 
+echo "Checking out base branch $TARGET_BRANCH..." 
 git checkout $BASE_BRANCH
 git pull
-git reset --hard origin/$BASE_BRANCH
 
 # searches within the commit difference between the base and target branches the commits with #skipMerge in their commit message
 SKIPMERGES=($(git log --reverse --pretty=format:"%H" -i --grep="#skipMerge" $BASE_BRANCH..$TARGET_BRANCH))
@@ -45,7 +36,7 @@ for i in ${SKIPMERGES[@]}; do
 
 	# do a default merge with the before skip commit
 	echo "Merging commit before skip '$BEFORE_SKIP_COMMIT' into '$BASE_BRANCH' with 'default' strategy..."
-	git merge $BEFORE_SKIP_COMMIT --no-commit # -m "Merge '$BEFORE_SKIP_COMMIT' into '$BASE_BRANCH'"
+	git merge $BEFORE_SKIP_COMMIT -m "Merge '$BEFORE_SKIP_COMMIT' into '$BASE_BRANCH'"
 
 	# check for merge conflicts
 	if [ -z "$(git status --porcelain)" ]; then 
@@ -58,7 +49,7 @@ for i in ${SKIPMERGES[@]}; do
 
 	# do an ours merge to skip changes with the skip commit
 	echo "Merging skip commit '$SKIP_COMMIT' into '$BASE_BRANCH' with 'ours' strategy..."
-	git merge $SKIP_COMMIT -s ours --no-commit # -m "Merge '$SKIP_COMMIT' into '$BASE_BRANCH' without changes"
+	git merge $SKIP_COMMIT -s ours -m "Merge '$SKIP_COMMIT' into '$BASE_BRANCH' without changes"
 
 done
 
@@ -86,7 +77,7 @@ fi
 # final check for merge conflicts
 if [ "$MERGE_CONFLICT_COMMIT" == "" ]; then
 	echo "Everything successfully completed, pushing commits..."
-	# git push
+	git push
 	echo "Successful pushed, exiting..."
 	exit
 else
