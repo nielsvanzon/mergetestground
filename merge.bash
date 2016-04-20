@@ -6,6 +6,9 @@ if [ ! $# == 2 ]; then
 	exit
 fi
 
+BASE_BRANCH=$1
+TARGET_BRANCH=$2
+
 # check for a clean working directory 
 if [ -z "$(git status --porcelain)" ]; then 
   	echo "Working directory is clean, continuing..."
@@ -13,9 +16,6 @@ else
 	echo "Unclean working directory, exiting..."
 	exit
 fi
-
-BASE_BRANCH=$1
-TARGET_BRANCH=$2
 
 # get locally up to date versions of the base and target branches
 echo "Fetching updates..."
@@ -25,7 +25,7 @@ git checkout $TARGET_BRANCH
 git pull
 git reset --hard origin/$TARGET_BRANCH
 
-echo "Checking out base branch $$BASE_BRANCH..." 
+echo "Checking out base branch $BASE_BRANCH..." 
 git checkout $BASE_BRANCH
 git pull
 git reset --hard origin/$BASE_BRANCH
@@ -45,7 +45,7 @@ for i in ${SKIPMERGES[@]}; do
 
 	# do a default merge with the before skip commit
 	echo "Merging commit before skip '$BEFORE_SKIP_COMMIT' into '$BASE_BRANCH' with 'default' strategy..."
-	git merge $BEFORE_SKIP_COMMIT --no-commit # -m "Merge '$BEFORE_SKIP_COMMIT' into '$BASE_BRANCH'"
+	git merge $BEFORE_SKIP_COMMIT --no-edit -m "Merge '$BEFORE_SKIP_COMMIT' into '$BASE_BRANCH'"
 
 	# check for merge conflicts
 	if [ -z "$(git status --porcelain)" ]; then 
@@ -58,7 +58,7 @@ for i in ${SKIPMERGES[@]}; do
 
 	# do an ours merge to skip changes with the skip commit
 	echo "Merging skip commit '$SKIP_COMMIT' into '$BASE_BRANCH' with 'ours' strategy..."
-	git merge $SKIP_COMMIT -s ours --no-commit # -m "Merge '$SKIP_COMMIT' into '$BASE_BRANCH' without changes"
+	git merge $SKIP_COMMIT -s ours --no-edit -m "Merge '$SKIP_COMMIT' into '$BASE_BRANCH' without changes"
 
 done
 
@@ -86,11 +86,12 @@ fi
 # final check for merge conflicts
 if [ "$MERGE_CONFLICT_COMMIT" == "" ]; then
 	echo "Everything successfully completed, pushing commits..."
-	# git push
+	git push
 	echo "Successful pushed, exiting..."
 	exit
 else
 	# report on the failed commit
 	echo "Merging failed on commit '$MERGE_CONFLICT_COMMIT', exiting..."
+    git merge --abort
 	exit 1
 fi
