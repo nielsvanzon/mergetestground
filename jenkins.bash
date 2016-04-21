@@ -86,6 +86,6 @@ if [ "$MERGE_CONFLICT_COMMIT" == "" ]; then
 else
 	# report on the failed commit
 	echo "Merging failed on commit '$MERGE_CONFLICT_COMMIT', exiting..."
-    git merge --abort
+    	git merge --abort
 	exit 1
 fi
